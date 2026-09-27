@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-scrapper}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # solo la primera vez que arranca con el volumen vacío
+      - ./docker/db/init:/docker-entrypoint-initdb.d:ro
+    # en prod no publiques la BD al exterior: solo loopback
+    ports:
+      - "127.0.0.1:${DB_PUBLISHED_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d $${POSTGRES_DB:-scrapper}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: scrapper-ai:prod
+    restart: unless-stopped
+    stop_grace_period: 15s
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # conexión interna (nombre del servicio, NO localhost)
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_NAME: ${DB_NAME:-scrapper}
+      DB_SSLMODE: ${DB_SSLMODE:-disable}
+      # seguridad
+      JWT_SECRET: ${JWT_SECRET:?Definí JWT_SECRET en .env (obligatorio en producción)}
+      ENVIROMENT: ${ENVIROMENT:-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:34115,http://localhost:5173}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  pgdata:

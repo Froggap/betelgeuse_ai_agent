@@ -1,0 +1,12 @@
+.git
+.gitignore
+.vscode
+.idea
+.env
+.env.local
+.env.*.local
+docs
+*.md
+*.test
+*.out
+coverage.out

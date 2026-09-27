@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS auth.users;
+DROP TABLE IF EXISTS auth.sessions;
+DROP TABLE IF EXISTS auth.roles;
+DROP SCHEMA IF EXISTS auth;

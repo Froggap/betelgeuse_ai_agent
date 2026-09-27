@@ -14,9 +14,8 @@ type ConfigEnvs struct {
 	DbName     string
 	DbSSLMode  string
 
-	SecretJwt string
-	Enviroment	string
-
+	SecretJwt  string
+	Enviroment string
 }
 
 var Envs *ConfigEnvs
@@ -31,7 +30,7 @@ func LoadEnvs() {
 		DbName:     getEnv("DB_NAME", "postgres"),
 		DbPort:     getEnv("DB_PORT", "5432"),
 		DbSSLMode:  getEnv("DB_SSLMODE", "disable"),
-		SecretJwt: getEnv("JWT_SECRET", "default_secret_key"),
+		SecretJwt:  getEnv("JWT_SECRET", "default_secret_key"),
 		Enviroment: getEnv("ENVIROMENT", "development"),
 	}
 }
